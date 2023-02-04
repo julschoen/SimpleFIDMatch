@@ -54,13 +54,12 @@ def get_activations(x, model, batch_size=10, dims=2048, device='cuda', num_worke
 
         start_idx = start_idx + pred.shape[0]
 
-    print(pred_arr.shape)
     return torch.from_numpy(pred_arr).squeeze()
 
 def fid(x, model, batch_size=10, device='cuda', dims=2048):
     x = get_activations(x, model, batch_size=batch_size, device=device, dims=dims)
     print('Got Act', flush=True)
-    return calculate_frechet_distance(x, m2, s2)
+    return calculate_frechet_distance(x)
 
 
 device='cuda'
