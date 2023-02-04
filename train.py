@@ -45,9 +45,10 @@ class Trainer():
 		torch.save(self.labels.cpu(), file_name)
 
 	def load_stats(self, c):
-		real_m = torch.from_numpy(torch.load(f'real_m_{c}.pt')).to(self.p.device)
-		real_s = torch.from_numpy(torch.load(f'real_s_{c}.pt')).to(self.p.device)
-		return real_m, real_s
+		m = torch.from_numpy(torch.load(f'm_{c}.pt')).to(self.p.device)
+		e = torch.from_numpy(torch.load(f'e_{c}.pt')).to(self.p.device)
+		c = torch.from_numpy(torch.load(f'c_{c}.pt')).to(self.p.device)
+		return m, e, c
 
 	def train(self):
 		for c in range(10):
@@ -56,11 +57,11 @@ class Trainer():
 			ims = torch.nn.Parameter(ims)
 			opt = torch.optim.Adam([ims], lr=self.p.lr)
 			ims.requires_grad = True
-			real_m, real_s = self.load_stats(c)
+			m, e, cov_X = self.load_stats(c)
 			for t in range(self.p.niter):
 				self.tracker.epoch_start()
 				opt.zero_grad()
-				loss = fid((torch.tanh(ims)+1)/2, real_m, real_s, batch_size=self.p.num_ims, device=self.p.device)
+				loss = fid((torch.tanh(ims)+1)/2, m, e, c, batch_size=self.p.num_ims, device=self.p.device)
 				loss.backward()
 				opt.step()
 				self.tracker.epoch_end()

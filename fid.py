@@ -7,7 +7,7 @@ from torch.nn.functional import adaptive_avg_pool2d
 from inception import InceptionV3
 from sqrtm import sqrtm
 
-def calculate_frechet_distance(X, mu_Y, sigma_Y):
+def calculate_frechet_distance(X, mu_Y, E_Y, cov_Y):
     # the linear algebra ops will need some extra precision -> convert to double
     X = X.transpose(0, 1).double()  # [n, b]
     mu_X = torch.mean(X, dim=1, keepdim=True)  # [n, 1]
@@ -16,9 +16,7 @@ def calculate_frechet_distance(X, mu_Y, sigma_Y):
 
     # Cov. Matrix
     E_X = X - mu_X
-    E_Y = sqrtm(sigma_Y)
     cov_X = torch.matmul(E_X, E_X.t()) * fact  # [n, n]
-    cov_Y = sigma_Y
 
     # calculate Tr((cov_X * cov_Y)^(1/2)). with the method proposed in https://arxiv.org/pdf/2009.14075.pdf
     # The eigenvalues for M are real-valued.
@@ -50,9 +48,8 @@ def get_activations(x, model, batch_size=10, dims=2048, device='cuda', num_worke
 
     return pred.squeeze()
 
-def fid(x, m2, s2, batch_size=10, device='cuda', dims=2048):
+def fid(x, m, e, c, batch_size=10, device='cuda', dims=2048):
     block_idx = InceptionV3.BLOCK_INDEX_BY_DIM[dims]
-
     model = InceptionV3([block_idx]).to(device)
     x = get_activations(x, model, batch_size=batch_size, device=device, dims=dims)
-    return calculate_frechet_distance(x, m2, s2)
+    return calculate_frechet_distance(x, m, e, c)
