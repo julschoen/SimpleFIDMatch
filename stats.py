@@ -71,14 +71,14 @@ with torch.no_grad():
         print(f'Class {i}', flush=True)
         c = final_cl[i]
         c = (c+1)/2
-        m, e, c = fid(c.to('cuda'), model, batch_size=100)
-        torch.save(m, f'm_{i}.pt')
-        torch.save(e, f'e_{i}.pt')
-        torch.save(c, f'c_{i}.pt')
+        m, e, c = fid(c.to('cuda'), model, batch_size=10)
+        torch.save(m.cpu(), f'm_{i}.pt')
+        torch.save(e.cpu(), f'e_{i}.pt')
+        torch.save(c.cpu(), f'c_{i}.pt')
 
     print('Full', flush=True)
     final_cl = final_cl.reshape(-1,3,32,32)
-    m, e, c = fid(final_cl.to('cuda'), model, batch_size=100)
-    torch.save(m, f'm_full.pt')
-    torch.save(e, f'e_full.pt')
-    torch.save(c, f'c_full.pt')
+    m, e, c = fid(final_cl.to('cuda'), model, batch_size=10)
+    torch.save(m.cpu(), f'm_full.pt')
+    torch.save(e.cpu(), f'e_full.pt')
+    torch.save(c.cpu(), f'c_full.pt')
