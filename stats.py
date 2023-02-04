@@ -68,7 +68,7 @@ model = InceptionV3([block_idx]).eval().to(device)
 
 with torch.no_grad():
     for i in range(10):
-        print(f'Class {i}' flush=True)
+        print(f'Class {i}', flush=True)
         c = final_cl[i]
         c = (c+1)/2
         m, e, c = fid(c.to('cuda'), model, batch_size=100)
