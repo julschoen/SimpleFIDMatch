@@ -45,9 +45,9 @@ class Trainer():
 		torch.save(self.labels.cpu(), file_name)
 
 	def load_stats(self, c):
-		m = torch.from_numpy(torch.load(f'm_{c}.pt')).to(self.p.device)
-		e = torch.from_numpy(torch.load(f'e_{c}.pt')).to(self.p.device)
-		c = torch.from_numpy(torch.load(f'c_{c}.pt')).to(self.p.device)
+		m = torch.load(f'm_{c}.pt').to(self.p.device)
+		e = torch.load(f'e_{c}.pt').to(self.p.device)
+		c = torch.load(f'c_{c}.pt').to(self.p.device)
 		return m, e, c
 
 	def train(self):
