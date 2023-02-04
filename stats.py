@@ -32,8 +32,9 @@ def get_activations(x, model, batch_size=10, dims=2048, device='cuda', num_worke
 
     return pred.squeeze()
 
-def fid(x, model, batch_size=10, device='cpu', dims=2048):
+def fid(x, model, batch_size=10, device='cuda', dims=2048):
     x = get_activations(x, model, batch_size=batch_size, device=device, dims=dims)
+    print('Got Act', flush=True)
     return calculate_frechet_distance(x, m2, s2)
 
 train_kwargs = {'batch_size': 10000, 'shuffle':True}
@@ -61,24 +62,23 @@ for cl in classes:
 
 
 final_cl = torch.stack(final_cl)
-full = final_cl.reshape(-1,3,32,32)
-print(full.shape, final_cl.shape)
 
 block_idx = InceptionV3.BLOCK_INDEX_BY_DIM[2048]
-model = InceptionV3([block_idx]).eval()
+model = InceptionV3([block_idx]).eval().to(device)
 
 with torch.no_grad():
-    for i in range(4,10):
-        print(final_cl[i].shape)
+    for i in range(10):
+        print(f'Class {i}' flush=True)
         c = final_cl[i]
         c = (c+1)/2
-        m, e, c = fid(c, model, batch_size=10)
+        m, e, c = fid(c.to('cuda'), model, batch_size=10)
         torch.save(m, f'm_{i}.pt')
         torch.save(e, f'e_{i}.pt')
         torch.save(c, f'c_{i}.pt')
 
-
-    m, e, c = fid(full, model, batch_size=10)
+    print('Full', flush=True)
+    final_cl = final_cl.reshape(-1,3,32,32)
+    m, e, c = fid(final_cl.to('cuda'), model, batch_size=10)
     torch.save(m, f'm_full.pt')
     torch.save(e, f'e_full.pt')
     torch.save(c, f'c_full.pt')
