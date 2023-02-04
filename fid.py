@@ -17,6 +17,7 @@ def calculate_frechet_distance(X, mu_Y, E_Y, cov_Y):
     # Cov. Matrix
     E_X = X - mu_X
     cov_X = torch.matmul(E_X, E_X.t()) * fact  # [n, n]
+    cov_Y = torch.matmul(E_Y, E_Y.t()) * fact  # [n, n]
 
     # calculate Tr((cov_X * cov_Y)^(1/2)). with the method proposed in https://arxiv.org/pdf/2009.14075.pdf
     # The eigenvalues for M are real-valued.
