@@ -64,7 +64,7 @@ for cl in classes:
 final_cl = torch.stack(final_cl)
 
 block_idx = InceptionV3.BLOCK_INDEX_BY_DIM[2048]
-model = InceptionV3([block_idx]).eval().to(device)
+model = InceptionV3([block_idx]).eval().to('cuda')
 
 with torch.no_grad():
     for i in range(10):
