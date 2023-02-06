@@ -82,11 +82,11 @@ class Trainer():
 				data = data[torch.randperm(data.shape[0])[:ims.shape[0]]]
 
 				opt.zero_grad()
-				encX = get_activations((data+1)/2, self.model, batch_size=ims.shape[0], device=self.p.device)
+				encX = get_activations((data+1)/2, self.model, batch_size=ims.shape[0], device=self.p.device).detach()
 				encY = get_activations((torch.tanh(ims)+1)/2, self.model, batch_size=ims.shape[0], device=self.p.device)
-				loss = torch.sum((torch.mean(encX, dim=0) - torch.mean(encY, dim=0))**2)
-				#loss = mix_rbf_mmd2(encX, encY, self.sigma_list)
-				#loss = torch.sqrt(F.relu(loss))
+				#loss = torch.sum((torch.mean(encX, dim=0) - torch.mean(encY, dim=0))**2)
+				loss = mix_rbf_mmd2(encX, encY, self.sigma_list)
+				loss = torch.sqrt(F.relu(loss))
 				loss.backward()
 				opt.step()
 				self.tracker.epoch_end()
@@ -95,7 +95,9 @@ class Trainer():
 					print('[{}|{}] Loss: {:.4f}'.format(t+1, self.p.niter, loss.item()), flush=True)
 
 			ims.requires_grad = False
-			self.ims[10*c:(10*c)+10] = torch.tanh(ims) 
+			self.ims[10*c:(10*c)+10] = torch.tanh(ims)
+		self.tracker.stop()
+		self.save()
 
 
 	def train_fid(self):
