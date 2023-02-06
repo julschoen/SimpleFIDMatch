@@ -17,10 +17,10 @@ class Trainer():
 
 		if self.p.mmd:
 			self.train_loader = train_loader
-	        self.gen = self.inf_train_gen()
-	        self.sigma_list = [1, 2, 4, 8, 16, 24, 32, 64]
-	        block_idx = InceptionV3.BLOCK_INDEX_BY_DIM[2048]
-		    self.model = InceptionV3([block_idx]).to(self.p.device)
+			self.gen = self.inf_train_gen()
+			self.sigma_list = [1, 2, 4, 8, 16, 24, 32, 64]
+			block_idx = InceptionV3.BLOCK_INDEX_BY_DIM[2048]
+			self.model = InceptionV3([block_idx]).to(self.p.device)
 
 		if self.p.init_ims:
 			self.ims = torch.load('means.pt')
@@ -35,9 +35,9 @@ class Trainer():
 		self.tracker = CarbonTracker(epochs=self.p.niter, log_dir='./cdc_carbon/')
 
 	def inf_train_gen(self):
-        while True:
-            for data in self.train_loader:
-                yield data
+		while True:
+			for data in self.train_loader:
+				yield data
 
 	def log_interpolation(self, step, c, ims):
 		path = os.path.join(self.p.log_dir, 'images')
@@ -84,7 +84,7 @@ class Trainer():
 				encX = get_activations((data+1)/2, self.model, batch_size=ims.shape[0], device=self.p.device)
 				encY = get_activations((torch.tanh(ims)+1)/2, self.model, batch_size=ims.shape[0], device=self.p.device)
 				loss = mix_rbf_mmd2(encX, encY, self.sigma_list)
-                loss = torch.sqrt(F.relu(loss))
+				loss = torch.sqrt(F.relu(loss))
 				loss.backward()
 				opt.step()
 				self.tracker.epoch_end()
