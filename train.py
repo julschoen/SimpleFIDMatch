@@ -3,13 +3,24 @@ import torchvision.utils as vutils
 from carbontracker.tracker import CarbonTracker
 
 import os
-from fid import fid
+from fid import fid, get_activations
+from mmd import mix_rbf_mmd2
+from inception import InceptionV3
+
+
 
 class Trainer():
-	def __init__(self, params):
+	def __init__(self, params, train_loader):
 		self.p = params
 		if not os.path.isdir(self.p.log_dir):
 			os.mkdir(self.p.log_dir)
+
+		if self.p.mmd:
+			self.train_loader = train_loader
+	        self.gen = self.inf_train_gen()
+	        self.sigma_list = [1, 2, 4, 8, 16, 24, 32, 64]
+	        block_idx = InceptionV3.BLOCK_INDEX_BY_DIM[2048]
+		    self.model = InceptionV3([block_idx]).to(self.p.device)
 
 		if self.p.init_ims:
 			self.ims = torch.load('means.pt')
@@ -22,6 +33,11 @@ class Trainer():
 		if not os.path.isdir('./cdc_carbon'):
 			os.mkdir('./cdc_carbon')
 		self.tracker = CarbonTracker(epochs=self.p.niter, log_dir='./cdc_carbon/')
+
+	def inf_train_gen(self):
+        while True:
+            for data in self.train_loader:
+                yield data
 
 	def log_interpolation(self, step, c, ims):
 		path = os.path.join(self.p.log_dir, 'images')
@@ -50,7 +66,37 @@ class Trainer():
 		c = torch.load(f'cifar_stats/c_{c}.pt').to(self.p.device)
 		return m, e, c
 
-	def train(self):
+	def train_mmd(self):
+		for c in range(10):
+			print(f'####### Class {c+1} #######')
+			ims = self.ims[10*c:(10*c)+10]
+			ims = torch.nn.Parameter(ims)
+			opt = torch.optim.Adam([ims], lr=self.p.lr)
+			ims.requires_grad = True
+			m, e, cov_X = self.load_stats(c)
+			for t in range(self.p.niter):
+				self.tracker.epoch_start()
+				data, label = next(self.gen)
+				data = data[label == c].to(self.p.device)
+				data = data[torch.randperm(data.shape[0])[:ims.shape[0]]]
+
+				opt.zero_grad()
+				encX = get_activations((data+1)/2, self.model, batch_size=ims.shape[0], device=self.p.device)
+				encY = get_activations((torch.tanh(ims)+1)/2, self.model, batch_size=ims.shape[0], device=self.p.device)
+				loss = mix_rbf_mmd2(encX, encY, self.sigma_list)
+                loss = torch.sqrt(F.relu(loss))
+				loss.backward()
+				opt.step()
+				self.tracker.epoch_end()
+				if ((t+1)%100 == 0) or (t==0):
+					self.log_interpolation(t,c,ims)
+					print('[{}|{}] Loss: {:.4f}'.format(t+1, self.p.niter, loss.item()), flush=True)
+
+			ims.requires_grad = False
+			self.ims[10*c:(10*c)+10] = torch.tanh(ims) 
+
+
+	def train_fid(self):
 		for c in range(10):
 			print(f'####### Class {c+1} #######')
 			ims = self.ims[10*c:(10*c)+10]
@@ -75,3 +121,9 @@ class Trainer():
 
 		self.tracker.stop()
 		self.save()
+
+	def train(self):
+		if self.p.mmd:
+			self.train_mmd()
+		else:
+			self.train_fid()
