@@ -1,5 +1,6 @@
 import argparse
 import torch
+from torchvision import datasets, transforms
 from train import Trainer
 
 def main():
