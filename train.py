@@ -1,4 +1,5 @@
 import torch
+import torch.nn.functional as F
 import torchvision.utils as vutils
 from carbontracker.tracker import CarbonTracker
 
