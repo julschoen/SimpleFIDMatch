@@ -87,12 +87,23 @@ class Trainer():
 				#loss = torch.sum((torch.mean(encX, dim=0) - torch.mean(encY, dim=0))**2)
 				loss = mix_rbf_mmd2(encX, encY, self.sigma_list)
 				loss = torch.sqrt(F.relu(loss))
+
+				## Correlation:
+	            if self.p.corr:
+	                kernel = torch.ones((1,3,3,3)).to(self.p.device)/9
+	                corr = F.conv2d(torch.tanh(self.ims), kernel, padding=1)
+	                corr = torch.norm(self.ims - corr).mean()
+	                loss = loss + corr
+
 				loss.backward()
 				opt.step()
 				self.tracker.epoch_end()
 				if ((t+1)%100 == 0) or (t==0):
 					self.log_interpolation(t,c,ims)
-					print('[{}|{}] Loss: {:.4f}'.format(t+1, self.p.niter, loss.item()), flush=True)
+					s = '[{}|{}] Loss: {:.4f}'.format(t+1, self.p.niter, loss.item())
+					if self.p.corr:
+						s += ', Corr: {:.4f}'.format(corr.item())
+					print(s, flush=True)
 
 			ims.requires_grad = False
 			self.ims[10*c:(10*c)+10] = torch.tanh(ims)
