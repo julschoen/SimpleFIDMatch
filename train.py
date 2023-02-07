@@ -88,11 +88,11 @@ class Trainer():
 				loss = torch.sqrt(F.relu(loss))
 
 				## Correlation:
-	            if self.p.corr:
-	                kernel = torch.ones((1,3,3,3)).to(self.p.device)/9
-	                corr = F.conv2d(torch.tanh(self.ims), kernel, padding=1)
-	                corr = torch.norm(self.ims - corr).mean()
-	                loss = loss + corr
+				if self.p.corr:
+					kernel = torch.ones((1,3,3,3)).to(self.p.device)/9
+					corr = F.conv2d(torch.tanh(self.ims), kernel, padding=1)
+					corr = torch.norm(self.ims - corr).mean()
+					loss = loss + corr
 
 				loss.backward()
 				opt.step()
