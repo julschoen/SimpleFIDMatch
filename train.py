@@ -67,6 +67,21 @@ class Trainer():
 		c = torch.load(f'cifar_stats/c_{c}.pt').to(self.p.device)
 		return m, e, c
 
+	def total_variation_loss(self, img, weight=1, four=False):
+		bs_img, c_img, h_img, w_img = img.size()
+
+		tv_h = torch.pow(img[:,:,1:,:]-img[:,:,:-1,:], 2).sum()
+		tv_w = torch.pow(img[:,:,:,1:]-img[:,:,:,:-1], 2).sum()
+
+		tv = weight*(tv_h+tv_w)/(bs_img*c_img*h_img*w_img)
+
+		if four:
+			tv_h4 = torch.pow(img[:,:,:-1,:]-img[:,:,1:,:], 2).sum()
+			tv_w4 = torch.pow(img[:,:,:,:-1]-img[:,:,:,1:], 2).sum()
+			tv += weight*(tv_h4+tv_w4)/(bs_img*c_img*h_img*w_img)
+
+		return tv
+
 	def train_mmd(self):
 		for c in range(10):
 			print(f'####### Class {c+1} #######')
@@ -89,9 +104,7 @@ class Trainer():
 
 				## Correlation:
 				if self.p.corr:
-					kernel = torch.ones((3,3,3,3)).to(self.p.device)/9
-					corr = F.conv2d(torch.tanh(self.ims), kernel, padding=1)
-					corr = torch.norm(self.ims - corr).mean()
+					corr = self.total_variation_loss(torch.tanh(ims), weight=self.p.corr_coef)
 					loss = loss + corr
 
 				loss.backward()
