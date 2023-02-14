@@ -118,7 +118,7 @@ def resize_comp(x,y, num_ims, num_classes):
     for c in range(num_classes):
         xc = x[y == c]
         perm = torch.randperm(xc.shape[0])[:num_ims]
-        xc, yc = xc[perm], torch.ones(100)*c
+        xc, yc = xc[perm], torch.ones(num_ims)*c
 
         data.append(xc)
         labels.append(yc)
