@@ -189,7 +189,7 @@ def main():
         
         ## random
         targets = torch.load(os.path.join(comp_dir,'rand_y_1.pt'))
-        features = torch.load(os.path.join(chkpt, 'rand_x_1.pt'))
+        features = torch.load(os.path.join(comp_dir, 'rand_x_1.pt'))
 
         features, targets = resize_comp(features, targets, num_ims, num_classes)
 
