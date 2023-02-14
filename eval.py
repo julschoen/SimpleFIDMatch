@@ -143,7 +143,7 @@ def main():
 
     device = args.device
 
-    train_kwargs = {'batch_size': args.batch_size}--
+    train_kwargs = {'batch_size': args.batch_size}
     test_kwargs = {'batch_size': args.test_batch_size}
 
     transform=transforms.Compose([
