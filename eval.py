@@ -115,7 +115,7 @@ def test(model, device, test_loader):
 def resize_comp(x,y, num_ims, num_classes):
     data = []
     labels = []
-    for c in num_classes:
+    for c in range(num_classes):
         xc = x[y == c]
         perm = torch.randperm(xc.shape[0])[:num_ims]
         xc, yc = data[perm], torch.ones(100)*c
