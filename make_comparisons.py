@@ -38,7 +38,7 @@ def make_random():
             label_all.append(label)
 
         data = torch.concat(data_all)
-        label = torch.concat(label)
+        label = torch.concat(label_all)
         save(f'rand_x_{i}.pt', data)
         save(f'rand_y_{i}.pt', label)
 
