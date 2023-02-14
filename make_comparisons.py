@@ -11,7 +11,7 @@ def save(file_name, data):
         torch.save(data.cpu(), file_name)
 
 def make_random():
-    train_kwargs = {'batch_size': 1000, 'shuffle':True}
+    train_kwargs = {'batch_size': 5000, 'shuffle':True}
 
     transform=transforms.Compose([
         transforms.ToTensor(),
