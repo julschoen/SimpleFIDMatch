@@ -124,7 +124,7 @@ def resize_comp(x,y, num_ims, num_classes):
         labels.append(yc)
 
     data = torch.concat(data)
-    labels = torch.concat(labels)
+    labels = torch.concat(labels).long()
     return data, labels
 
 
