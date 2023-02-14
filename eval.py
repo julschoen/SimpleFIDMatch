@@ -118,7 +118,7 @@ def resize_comp(x,y, num_ims, num_classes):
     for c in range(num_classes):
         xc = x[y == c]
         perm = torch.randperm(xc.shape[0])[:num_ims]
-        xc, yc = data[perm], torch.ones(100)*c
+        xc, yc = xc[perm], torch.ones(100)*c
 
         data.append(xc)
         labels.append(yc)
@@ -174,7 +174,7 @@ def main():
     train_loader = torch.utils.data.DataLoader(synth, batch_size=args.batch_size, shuffle=True)
 
     num_classes = 10
-    num_ims = features.shape[0]/num_classes
+    num_ims = int(features.shape[0]/num_classes)
 
 
     model = ConvNet(args).to(device)
