@@ -131,7 +131,7 @@ def resize_comp(x,y, num_ims, num_classes):
 def main():
     # Training settings
     parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
-    parser.add_argument('--batch-size', type=int, default=100)
+    parser.add_argument('--batch-size', type=int, default=500)
     parser.add_argument('--test-batch-size', type=int, default=1000)
     parser.add_argument('--epochs', type=int, default=30)
     parser.add_argument('--lr', type=float, default=0.001)
@@ -143,7 +143,7 @@ def main():
 
     device = args.device
 
-    train_kwargs = {'batch_size': args.batch_size}
+    train_kwargs = {'batch_size': args.batch_size}--
     test_kwargs = {'batch_size': args.test_batch_size}
 
     transform=transforms.Compose([
