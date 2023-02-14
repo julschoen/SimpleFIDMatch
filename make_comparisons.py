@@ -42,7 +42,7 @@ def make_random():
         save(f'rand_x_{i}.pt', data)
         save(f'rand_y_{i}.pt', label)
 
-        if i == 3:
+        if i == 10:
             break
 
 if __name__ == '__main__':
