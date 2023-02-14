@@ -112,6 +112,21 @@ def test(model, device, test_loader):
         test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
 
+def resize_comp(x,y, num_ims, num_classes):
+    data = []
+    labels = []
+    for c in num_classes:
+        xc = x[y == c]
+        perm = torch.randperm(xc.shape[0])[:num_ims]
+        xc, yc = data[perm], torch.ones(100)*c
+
+        data.append(xc)
+        labels.append(yc)
+
+    data = torch.concat(data)
+    labels = torch.concat(labels)
+    return data, labels
+
 
 def main():
     # Training settings
@@ -120,10 +135,10 @@ def main():
     parser.add_argument('--test-batch-size', type=int, default=1000)
     parser.add_argument('--epochs', type=int, default=30)
     parser.add_argument('--lr', type=float, default=0.001)
-    parser.add_argument('--save-model', type=bool, default=False)
     parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--train_full', type=bool, default=False)
     parser.add_argument('--log_dir', type=str, default='./log')
+    parser.add_argument('--comparisons', type=bool, default=False)
     args = parser.parse_args()
 
     device = args.device
@@ -158,6 +173,10 @@ def main():
     synth = data_utils.TensorDataset(features, targets)
     train_loader = torch.utils.data.DataLoader(synth, batch_size=args.batch_size, shuffle=True)
 
+    num_classes = 10
+    num_ims = features.shape[0]/num_classes
+
+
     model = ConvNet(args).to(device)
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
@@ -165,8 +184,25 @@ def main():
         train(args, model, device, train_loader, optimizer, epoch)
     test(model, device, test_loader)
 
-    if args.save_model:
-        torch.save(model.state_dict(), "mnist_cnn.pt")
+    if args.comparisons:
+        comp_dir = '../comparison_synth'
+        
+        ## random
+        targets = torch.load(os.path.join(comp_dir,'rand_y_1.pt'))
+        features = torch.load(os.path.join(chkpt, 'rand_x_1.pt'))
+
+        features, targets = resize_comp(features, targets, num_ims, num_classes)
+
+        synth = data_utils.TensorDataset(features, targets)
+        train_loader = torch.utils.data.DataLoader(synth, batch_size=args.batch_size, shuffle=True)
+
+        model = ConvNet(args).to(device)
+        optimizer = optim.Adam(model.parameters(), lr=args.lr)
+
+        for epoch in range(1, 200):
+            train(args, model, device, train_loader, optimizer, epoch)
+        test(model, device, test_loader)
+
 
 
 if __name__ == '__main__':

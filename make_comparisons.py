@@ -1,0 +1,60 @@
+import argparse
+import torch
+from torchvision import datasets, transforms
+import os
+
+# Training settings
+    parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
+    # General Training
+    parser.add_argument('--niter', type=int, default=20000, metavar='N', help='number of epochs to train (default: 14)')
+    parser.add_argument('--lr', type=float, default=1e-3, metavar='LR', help='learning rate (default: 0.001)')
+    parser.add_argument('--num_ims', type=int, default=10)
+    parser.add_argument('--cifar', type=bool, default=True)
+    parser.add_argument('--device', type=str, default='cuda')
+    parser.add_argument('--init_ims', type=bool, default=False)
+    parser.add_argument('--log_dir', type=str, default='./log')
+    parser.add_argument('--mmd', type=bool, default=False)
+    parser.add_argument('--corr', type=bool, default=False)
+    parser.add_argument('--corr_coef', type=float, default=1)
+    args = parser.parse_args()
+
+comp_dir = '../comparison_synth'
+
+def save(file_name, data):
+        file_name = os.path.join(comp_dir, file_name)
+        torch.save(data.cpu(), file_name)
+
+def make_random():
+    train_kwargs = {'batch_size': 1000, 'shuffle':True}
+
+    transform=transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(0.5, 0.5)
+    ])
+    
+    dataset1 = datasets.CIFAR10('../data/', train=True, download=True,
+                       transform=transform)
+    train_loader = torch.utils.data.DataLoader(dataset1,**train_kwargs)
+
+    if not os.path.isdir(comp_dir):
+        os.mkdir(comp_dir)
+
+    data_all = []
+    label_all = []
+
+    for i, (x,y) in enumerate(train_loader):
+        for c in range(10):
+            data = x[y == c]
+            perm = torch.randperm(data.shape[0])[:100]
+            data, label = data[perm], torch.ones(100)*c
+
+            data_all.append(data)
+            label_all.append(label)
+
+        data = torch.concat(data_all)
+        label = torch.concat(label)
+        save(f'rand_x_{i}.pt', data)
+        save(f'rand_y_{i}.pt', label)
+
+        if i == 3:
+            break
