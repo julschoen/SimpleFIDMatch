@@ -139,7 +139,7 @@ def main():
     device = args.device
 
     res = []
-    for i in range(10)
+    for i in range(10):
         comp_dir = '../comparison_synth'
         
         ## random
