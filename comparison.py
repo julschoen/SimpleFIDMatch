@@ -146,7 +146,7 @@ def main():
         targets = torch.load(os.path.join(comp_dir,f'rand_y_{i}.pt'))
         features = torch.load(os.path.join(comp_dir, f'rand_x_{i}.pt'))
 
-        features, targets = resize_comp(features, targets, num_ims, num_classes)
+        features, targets = resize_comp(features, targets, args.num_ims, 10)
 
         synth = data_utils.TensorDataset(features, targets)
         train_loader = torch.utils.data.DataLoader(synth, batch_size=args.batch_size, shuffle=True)
