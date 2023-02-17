@@ -138,6 +138,15 @@ def main():
 
     device = args.device
 
+    transform=transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(0.5, 0.5)
+    ])
+    
+    dataset2 = datasets.CIFAR10('./', train=False,
+                       transform=transform)
+    test_loader = torch.utils.data.DataLoader(dataset2, **test_kwargs)
+
     res = []
     for i in range(10):
         comp_dir = '../comparison_synth'
