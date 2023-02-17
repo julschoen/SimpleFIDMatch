@@ -142,6 +142,8 @@ def main():
         transforms.ToTensor(),
         transforms.Normalize(0.5, 0.5)
     ])
+
+    test_kwargs = {'batch_size': args.test_batch_size}
     
     dataset2 = datasets.CIFAR10('./', train=False,
                        transform=transform)
