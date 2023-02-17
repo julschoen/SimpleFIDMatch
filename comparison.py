@@ -169,8 +169,7 @@ def main():
                 train(args, model, device, train_loader, optimizer, epoch)
             acc = test(model, device, test_loader)
             res.append(acc)
-            break
-        break
+
     res = np.array(res)
     print(res.mean(), res.std())
 
