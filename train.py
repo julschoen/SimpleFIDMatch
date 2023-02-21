@@ -99,8 +99,8 @@ class Trainer():
 				opt.zero_grad()
 				encX = get_activations((data+1)/2, self.model, batch_size=ims.shape[0], device=self.p.device).detach()
 				encY = get_activations((torch.tanh(ims)+1)/2, self.model, batch_size=ims.shape[0], device=self.p.device)
-				loss = mix_rbf_mmd2(encX, encY, self.sigma_list)
-				loss = torch.sqrt(F.relu(loss))
+				#loss = mix_rbf_mmd2(encX, encY, self.sigma_list)
+				loss = torch.norm(encX.mean(dim=0)-encY.mean(dim=0))#torch.sqrt(F.relu(loss))
 
 				## Correlation:
 				if self.p.corr:
