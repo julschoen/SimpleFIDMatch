@@ -147,7 +147,7 @@ def main():
 
     test_kwargs = {'batch_size': args.test_batch_size}
     
-    dataset2 = datasets.CIFAR10('./', train=False,
+    dataset2 = datasets.CIFAR10('../data', train=False,
                        transform=transform)
     test_loader = torch.utils.data.DataLoader(dataset2, **test_kwargs)
 
