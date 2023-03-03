@@ -15,7 +15,9 @@ def make_random():
 
     transform=transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize(0.5, 0.5)
+        transforms.Normalize(
+            (0.5, 0.5, 0.5), 
+            (0.5, 0.5, 0.5))
     ])
     
     dataset1 = datasets.CIFAR10('../data/', train=True, download=True,
